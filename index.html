@@ -183,6 +183,7 @@ body.nocc #sub { display: none; }
 
 /* 開始遮罩 */
 #start { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(23,32,58,.55); z-index: 5; cursor: pointer; border: 0; padding: 0; }
+#start[hidden], #start.gone { display: none !important; }
 #start .pl { display: flex; align-items: center; gap: 18px; background: #fff; color: var(--ink); padding: 22px 38px; border-radius: 22px; font: 700 34px var(--f-display); box-shadow: 0 12px 30px rgba(0,0,0,.25); }
 #start .pl i { width: 64px; height: 64px; border-radius: 50%; background: var(--arale); display: grid; place-items: center; color: #fff; font-style: normal; font-size: 30px; padding-left: 5px; }
 
@@ -539,7 +540,7 @@ body.render #stageWrap { width: 1280px; height: 720px; border-radius: 0; box-sha
   function seek(t) { t = clamp(t, 0, L.duration - 0.01); clockT = t; if (audioOK()) aud.currentTime = t; render(t); }
   function setPlaying(p) {
     playing = p; $("#play").textContent = p ? "❚❚ 暫停" : "▶ 播放";
-    $("#start").hidden = true;
+    const st = $("#start"); st.hidden = true; st.classList.add("gone"); st.style.display = "none";
     if (p) { last = performance.now(); if (audioOK()) aud.play().catch(() => {}); }
     else aud.pause();
   }
@@ -556,7 +557,7 @@ body.render #stageWrap { width: 1280px; height: 720px; border-radius: 0; box-sha
     requestAnimationFrame(loop);
   }
   aud.addEventListener("ended", () => setPlaying(false));
-  $("#start").onclick = () => setPlaying(true);
+  $("#start").addEventListener("click", e => { e.stopPropagation(); setPlaying(true); });
   $("#play").onclick = () => setPlaying(!playing);
   const jump = d => { const i = clamp(sceneAt(now() + 0.01) + d, 0, S.length - 1); seek(S[i].start); };
   $("#prev").onclick = () => jump(now() - S[sceneAt(now())].start > 2 ? 0 : -1);
