@@ -1,0 +1,578 @@
+<title>資產管理動畫課</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: 16:9 舞台（1280×720 等比縮放）＝ 左側教材區 ＋ 右側生命週期導覽與 Q 版講師群 ＋ 底部字幕；舞台外為播放控制列 */
+:root {
+  --page: #e9edf4; --page-fg: #1d2b4f; --ctrl: #ffffff; --ctrl-line: #cfd7e6; --ctrl-accent: #2f4b8f;
+  /* 舞台固定為明亮教室配色（刻意單一外觀，像投影在白板上） */
+  --ink: #1d2b4f; --ink-soft: #55607a; --paper: #f7f9fc; --dot: #dbe2ee; --card: #ffffff;
+  --allan: #2c3e6b; --arale: #e2457a; --ok: #2e9d57; --ng: #d93a3a; --gold: #f5b82e;
+  --f-display: "LXGW WenKai TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "WenQuanYi Zen Hei", sans-serif;
+  --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "WenQuanYi Zen Hei", sans-serif;
+  --f-num: "Baloo 2", "Noto Sans TC", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #10141d; --page-fg: #e6eaf2; --ctrl: #1a2030; --ctrl-line: #2c3548; --ctrl-accent: #8fb0ff; color-scheme: dark } }
+:root[data-theme="dark"] { --page: #10141d; --page-fg: #e6eaf2; --ctrl: #1a2030; --ctrl-line: #2c3548; --ctrl-accent: #8fb0ff; color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--page); color: var(--page-fg); font-family: var(--f-body); margin: 0; }
+* { box-sizing: border-box; }
+
+#app { max-width: 1280px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+#stageWrap { position: relative; width: 100%; aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; border-radius: 14px; box-shadow: 0 10px 30px rgba(20,30,60,.18); background: var(--paper); }
+#stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; overflow: hidden; color: var(--ink);
+  background: radial-gradient(circle, var(--dot) 1.2px, transparent 1.3px) 0 0 / 22px 22px, var(--paper); font-family: var(--f-body); }
+
+/* 頂部 */
+.topbar { position: absolute; left: 0; top: 0; right: 0; height: 78px; display: flex; align-items: center; gap: 16px; padding: 0 30px 0 40px; }
+.topbar::after { content: ""; position: absolute; left: 40px; right: 30px; bottom: 0; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--zc, #2f4b8f), transparent); }
+#chap { font: 700 17px var(--f-body); color: #fff; background: var(--zc, #2f4b8f); padding: 5px 14px; border-radius: 999px; white-space: nowrap; letter-spacing: .04em; }
+#title { font: 700 33px/1.1 var(--f-display); margin: 0; flex: 1; text-wrap: balance; }
+.brand { font: 800 15px var(--f-num); color: var(--ink-soft); letter-spacing: .08em; text-align: right; line-height: 1.15; }
+.brand b { display: block; font-size: 20px; color: var(--ink); }
+
+#content { position: absolute; left: 40px; top: 96px; width: 860px; height: 540px; }
+
+/* 右側導覽 */
+#mini { position: absolute; left: 920px; top: 96px; width: 335px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+#mini .m { font: 700 14px var(--f-body); text-align: center; padding: 7px 4px; border-radius: 10px; color: var(--ink-soft); background: #fff; border: 2px solid #e3e8f1; transition: none; }
+#mini .m.on { color: #fff; background: var(--mc); border-color: var(--mc); box-shadow: 0 4px 12px color-mix(in srgb, var(--mc) 45%, transparent); }
+#mini .m small { display: block; font: 600 12px var(--f-num); opacity: .85; }
+#clock { position: absolute; left: 920px; top: 222px; width: 335px; font: 600 13px var(--f-body); color: var(--ink-soft); display: flex; justify-content: space-between; }
+#bar { position: absolute; left: 920px; top: 244px; width: 335px; height: 8px; border-radius: 8px; background: #e3e8f1; overflow: hidden; }
+#bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #4caf50, #5b9bd5, #f08a24); }
+
+/* 角色 */
+.char { position: absolute; bottom: 82px; overflow: visible; }
+#allan { left: 915px; width: 220px; height: 330px; }
+#arale { left: 1118px; width: 150px; height: 225px; }
+.nametag { position: absolute; bottom: 74px; font: 700 13px var(--f-body); color: #fff; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+#tagA { left: 968px; background: var(--allan); }
+#tagR { left: 1150px; background: var(--arale); }
+
+/* 字幕 */
+#sub { position: absolute; left: 20px; right: 20px; bottom: 10px; height: 62px; display: flex; align-items: center; gap: 12px; padding: 8px 18px; border-radius: 14px; background: rgba(23,32,58,.9); color: #fff; font: 500 21px/1.3 var(--f-body); }
+#sub .who { flex: none; font: 700 15px var(--f-body); padding: 4px 10px; border-radius: 8px; background: var(--allan); }
+#sub.R .who { background: var(--arale); }
+#sub .txt { flex: 1; text-wrap: pretty; }
+#sub.empty { opacity: 0; }
+body.nocc #sub { display: none; }
+
+/* 共用卡片 */
+.reveal { will-change: transform, opacity; }
+.badge { font: 800 22px/1 var(--f-num); color: #fff; background: var(--zc); border-radius: 10px; padding: 6px 10px 3px; white-space: nowrap; }
+.focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--zc) 55%, transparent), 0 12px 26px rgba(20,30,60,.16) !important; }
+
+/* cards */
+.cards { display: grid; gap: 18px; height: 100%; align-content: start; }
+.cards.n2 { grid-template-columns: 1fr 1fr; }
+.cards.n3 { grid-template-columns: 1fr 1fr 1fr; }
+.cards.n4 { grid-template-columns: 1fr 1fr; }
+.card { background: var(--card); border-radius: 16px; border: 2px solid color-mix(in srgb, var(--zc) 30%, #fff); box-shadow: 0 6px 16px rgba(20,30,60,.08); overflow: hidden; display: flex; flex-direction: column; }
+.card .hd { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: color-mix(in srgb, var(--zc) 12%, #fff); }
+.card .hd h3 { margin: 0; font: 700 22px/1.25 var(--f-display); }
+.card ul { margin: 0; padding: 12px 18px 16px; list-style: none; display: grid; gap: 9px; }
+.card li { font: 500 19px/1.4 var(--f-body); padding-left: 30px; position: relative; }
+.card li::before { content: "✔"; position: absolute; left: 2px; top: 0; color: var(--zc); font-weight: 900; }
+.cards.n3 .card { min-height: 320px; }
+.cards.n3 .card .hd { flex-direction: column; align-items: flex-start; min-height: 112px; }
+.cards.n3 .card li { font-size: 20px; }
+.cards.n2 .card { min-height: 330px; }
+.cards.n2 .card li { font-size: 23px; }
+
+/* audit: 稽核夾板 */
+.board { position: relative; height: 100%; background: #fffdf6; border-radius: 18px; border: 3px solid #c9a46a; padding: 34px 22px 18px; box-shadow: 0 8px 20px rgba(80,60,20,.12); display: flex; flex-direction: column; gap: 12px; }
+.board::before { content: "稽核查檢表"; position: absolute; left: 50%; top: -18px; transform: translateX(-50%); font: 700 16px var(--f-body); color: #fff; background: #8a6a3a; padding: 6px 26px; border-radius: 8px; box-shadow: 0 3px 0 #6b5129; }
+.row { display: grid; grid-template-columns: 40px 118px 1fr; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; background: #fff; border: 1.5px solid #ece3cf; }
+.row .box { width: 32px; height: 32px; border-radius: 8px; border: 3px solid var(--zc); display: grid; place-items: center; font: 900 22px var(--f-body); color: var(--ok); }
+.row .badge { font-size: 19px; text-align: center; }
+.row .q { font: 700 20px/1.35 var(--f-body); }
+.row .ev { font: 500 16.5px/1.4 var(--f-body); color: var(--ink-soft); margin-top: 3px; }
+.row .ev::before { content: "🔍 查核證據："; color: #8a6a3a; font-weight: 700; }
+
+/* finding */
+.finds { display: flex; flex-direction: column; gap: 12px; }
+.find { position: relative; display: grid; grid-template-columns: 120px 1fr; gap: 14px; align-items: center; padding: 14px 120px 14px 16px; background: #fff; border-radius: 14px; border-left: 8px solid var(--ng); box-shadow: 0 5px 14px rgba(20,30,60,.08); }
+.find .badge { text-align: center; font-size: 20px; }
+.find p { margin: 0; font: 700 22px/1.4 var(--f-body); }
+.stamp { position: absolute; right: 18px; top: 50%; font: 900 20px/1 var(--f-body); color: var(--ng); border: 3.5px solid var(--ng); border-radius: 10px; padding: 7px 9px; letter-spacing: .06em; background: rgba(255,255,255,.7); }
+.finds.n5 .find { padding-block: 9px; }
+.finds.n5 .find p { font-size: 20px; }
+
+/* case */
+.comic { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.panel { position: relative; background: #fff; border: 3px solid var(--ink); border-radius: 14px; padding: 14px 16px 14px 98px; min-height: 150px; display: flex; align-items: center; box-shadow: 5px 5px 0 var(--ink); }
+.panel .e { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 62px; line-height: 1; }
+.panel .k { position: absolute; left: -10px; top: -12px; font: 800 18px/1 var(--f-num); background: var(--gold); color: var(--ink); border: 2.5px solid var(--ink); border-radius: 50%; width: 34px; height: 34px; display: grid; place-items: center; }
+.panel p { margin: 0; font: 700 21px/1.45 var(--f-body); }
+.lesson { margin-top: 18px; background: #eaf7ee; border: 2.5px dashed var(--ok); border-radius: 14px; padding: 14px 18px 14px 128px; position: relative; font: 700 20px/1.5 var(--f-body); color: #1e5a33; }
+.lesson::before { content: "💡 改善重點"; position: absolute; left: 16px; top: 15px; font: 700 18px var(--f-body); color: #fff; background: var(--ok); padding: 3px 8px; border-radius: 8px; }
+
+/* quiz */
+.qbox { background: #fff; border-radius: 18px; border: 3px solid var(--zc); padding: 20px 24px 20px 92px; position: relative; font: 700 26px/1.45 var(--f-display); min-height: 130px; box-shadow: 0 8px 20px rgba(20,30,60,.08); }
+.qbox .qn { position: absolute; left: 18px; top: 18px; width: 58px; height: 58px; border-radius: 50%; background: var(--zc); color: #fff; display: grid; place-items: center; font: 800 26px/1 var(--f-num); }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+.opt { position: relative; background: #fff; border-radius: 14px; border: 2.5px solid #d6deeb; padding: 16px 64px 16px 66px; font: 700 21px/1.4 var(--f-body); min-height: 86px; display: flex; align-items: center; }
+.opt .L { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; background: #eef2f8; display: grid; place-items: center; font: 800 21px/1 var(--f-num); }
+.opt.ok { border-color: var(--ok); background: #e9f8ef; }
+.opt.ok .L { background: var(--ok); color: #fff; }
+.opt.ng { border-color: var(--ng); background: #fdecec; }
+.opt.ng .L { background: var(--ng); color: #fff; }
+.opt .pin { position: absolute; right: -8px; top: -14px; font: 700 13px var(--f-body); color: #fff; background: var(--arale); padding: 3px 9px; border-radius: 999px; }
+.opt .mark { position: absolute; right: 16px; top: 50%; font-size: 40px; line-height: 1; }
+
+/* matrix */
+.mtx { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+.mtx th { font: 700 17px var(--f-body); color: #fff; background: var(--ink); padding: 9px 10px; text-align: left; }
+.mtx th:first-child { border-radius: 10px 0 0 10px; } .mtx th:last-child { border-radius: 0 10px 10px 0; }
+.mtx td { background: #fff; font: 500 15.5px/1.35 var(--f-body); padding: 8px 10px; vertical-align: middle; }
+.mtx td:first-child { font: 700 16px/1.3 var(--f-body); color: #fff; background: var(--zc); border-radius: 10px 0 0 10px; white-space: pre-line; width: 168px; }
+.mtx td:last-child { border-radius: 0 10px 10px 0; color: #a52a2a; }
+.mtx col.c1 { width: 168px; }
+
+/* cover / chapter / ending */
+.cover { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 18px; padding-right: 20px; }
+.cover .eyebrow { font: 800 22px var(--f-num); color: #2f4b8f; letter-spacing: .14em; }
+.cover h2 { margin: 0; font: 700 74px/1.12 var(--f-display); color: var(--ink); text-wrap: balance; }
+.cover h2 em { font-style: normal; color: #2f4b8f; background: linear-gradient(transparent 62%, #ffe28a 62%); }
+.cover .sub { font: 700 34px var(--f-display); color: var(--ink-soft); }
+.cover .tag { align-self: flex-start; font: 600 18px var(--f-body); color: #fff; background: #2f4b8f; padding: 8px 16px; border-radius: 10px; }
+.orbit { display: flex; gap: 16px; margin-top: 8px; }
+.orbit span { font-size: 44px; width: 78px; height: 78px; border-radius: 20px; background: #fff; display: grid; place-items: center; box-shadow: 0 6px 14px rgba(20,30,60,.1); }
+
+.chapter { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 10px; }
+.chapter .big { display: flex; align-items: center; gap: 26px; }
+.chapter .num { width: 150px; height: 150px; border-radius: 40px; background: var(--ink); color: #fff; display: grid; place-items: center; font: 800 110px/1 var(--f-num); box-shadow: 10px 10px 0 var(--gold); }
+.chapter .t small { display: block; font: 700 26px var(--f-body); color: var(--ink-soft); }
+.chapter .t h2 { margin: 0; font: 700 72px/1.1 var(--f-display); }
+.chapter .t i { font: 800 22px var(--f-num); color: #2f4b8f; font-style: normal; letter-spacing: .06em; }
+.chapter .icons { display: flex; gap: 18px; margin-top: 30px; }
+.chapter .ic { width: 180px; padding: 16px 10px; text-align: center; background: #fff; border-radius: 18px; border: 2.5px solid #e1e7f1; box-shadow: 0 6px 14px rgba(20,30,60,.08); }
+.chapter .ic b { display: block; font-size: 54px; line-height: 1.15; }
+.chapter .ic span { font: 700 22px var(--f-body); }
+
+/* 全景圖 */
+.lc { position: relative; width: 860px; height: 540px; }
+.lc .zone { position: absolute; border-radius: 60px; }
+.lc .z-in { left: 220px; top: 20px; width: 340px; height: 500px; background: #a5d6a7; opacity: .75; }
+.lc .z-out { left: 430px; top: 20px; width: 340px; height: 500px; background: #cfe2f7; opacity: .8; mix-blend-mode: multiply; }
+.lc .zlab { position: absolute; top: 34px; font: 700 20px/1.25 var(--f-display); text-align: center; color: var(--ink); }
+.lc .mg { position: absolute; left: 0; top: 20px; width: 200px; height: 500px; border: 2.5px dashed #2f4b8f; border-radius: 16px; background: rgba(255,255,255,.75); padding: 46px 12px 12px; display: flex; flex-direction: column; gap: 12px; }
+.lc .mg .lab { position: absolute; left: 12px; top: 10px; font: 700 18px var(--f-display); color: #2f4b8f; }
+.lc .it { font: 700 17px/1.3 var(--f-body); background: #fff; border-radius: 10px; padding: 7px 10px; box-shadow: 0 3px 8px rgba(20,30,60,.1); display: flex; gap: 8px; align-items: baseline; }
+.lc .it b { font: 800 18px var(--f-num); color: var(--zc); flex: none; }
+.lc .col { position: absolute; display: flex; flex-direction: column; gap: 10px; }
+.lc .flow { position: absolute; left: 0; top: 330px; width: 860px; height: 14px; }
+.lc .people { position: absolute; left: 230px; top: 420px; width: 530px; height: 100px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+.lc .people .p { font-size: 40px; }
+.lc .people .arrow { flex: 1; text-align: center; font: 700 15px/1.3 var(--f-body); padding: 0 6px; }
+.lc .people .arrow::after { content: "⟵────⟶"; display: block; color: var(--zc); letter-spacing: -1px; }
+.lc .people .arrow b { font: 800 17px var(--f-num); color: var(--zc); }
+.lc .end { position: absolute; left: 778px; top: 150px; width: 84px; text-align: center; background: #fff; border-radius: 14px; padding: 6px 2px; box-shadow: 0 4px 12px rgba(20,30,60,.1); }
+.lc .end .truck { font-size: 52px; }
+.lc .end p { margin: 4px 0 0; font: 700 15px/1.3 var(--f-body); }
+.lc .end b { display: block; font: 800 20px var(--f-num); color: #6d6d6d; }
+.lc .assets { display: flex; justify-content: space-around; font-size: 26px; margin-top: auto; background: #dfe7f6; border-radius: 10px; padding: 8px 4px; }
+
+.ending { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 22px; }
+.ending .bye { font: 800 96px/1 var(--f-num); color: #2f4b8f; letter-spacing: .04em; }
+.ending h2 { margin: 0; font: 700 46px/1.3 var(--f-display); text-wrap: balance; }
+.ending .credit { font: 600 20px var(--f-body); color: var(--ink-soft); }
+
+/* 開始遮罩 */
+#start { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(23,32,58,.55); z-index: 5; cursor: pointer; border: 0; padding: 0; }
+#start .pl { display: flex; align-items: center; gap: 18px; background: #fff; color: var(--ink); padding: 22px 38px; border-radius: 22px; font: 700 34px var(--f-display); box-shadow: 0 12px 30px rgba(0,0,0,.25); }
+#start .pl i { width: 64px; height: 64px; border-radius: 50%; background: var(--arale); display: grid; place-items: center; color: #fff; font-style: normal; font-size: 30px; padding-left: 5px; }
+
+/* 控制列 */
+#controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: var(--ctrl); border: 1px solid var(--ctrl-line); border-radius: 12px; padding: 10px 12px; }
+#controls button { font: 600 15px var(--f-body); color: var(--page-fg); background: transparent; border: 1px solid var(--ctrl-line); border-radius: 9px; padding: 7px 12px; cursor: pointer; min-width: 44px; }
+#controls button:hover { border-color: var(--ctrl-accent); }
+#controls button:focus-visible, #seek:focus-visible, #sceneSel:focus-visible { outline: 3px solid var(--ctrl-accent); outline-offset: 2px; }
+#controls #play { background: var(--ctrl-accent); color: var(--ctrl); border-color: var(--ctrl-accent); min-width: 88px; }
+#seek { flex: 1 1 220px; min-width: 0; accent-color: var(--ctrl-accent); }
+#time { font: 600 14px var(--f-num); font-variant-numeric: tabular-nums; min-width: 92px; text-align: center; }
+#sceneSel { font: 500 14px var(--f-body); color: var(--page-fg); background: var(--ctrl); border: 1px solid var(--ctrl-line); border-radius: 9px; padding: 7px 8px; max-width: 100%; min-width: 0; }
+.hint { font-size: 13px; opacity: .7; margin: 0; }
+
+body.render #app { padding: 0; max-width: none; }
+body.render #controls, body.render .hint, body.render #start { display: none !important; }
+body.render #stageWrap { width: 1280px; height: 720px; border-radius: 0; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { #bar i { transition: none; } }
+</style>
+
+<div id="app">
+  <div id="stageWrap">
+    <div id="stage" aria-live="polite">
+      <header class="topbar"><span id="chap">開場</span><h1 id="title"></h1><div class="brand">ISO/IEC<b>27001:2022</b></div></header>
+      <div id="content"></div>
+      <div id="mini"></div>
+      <div id="clock"><span id="clockL"></span><span id="clockR"></span></div>
+      <div id="bar"><i></i></div>
+
+      <!-- 助教 阿拉蕾（原創 Q 版造型） -->
+      <svg id="arale" class="char" viewBox="0 0 160 240" aria-label="助教阿拉蕾">
+        <g id="r-all">
+          <ellipse cx="80" cy="234" rx="44" ry="6" fill="#000" opacity=".12"/>
+          <rect x="62" y="196" width="12" height="30" rx="5" fill="#ffdcc2"/>
+          <rect x="86" y="196" width="12" height="30" rx="5" fill="#ffdcc2"/>
+          <ellipse cx="66" cy="229" rx="12" ry="6" fill="#e53935"/>
+          <ellipse cx="94" cy="229" rx="12" ry="6" fill="#e53935"/>
+          <g id="r-armL"><rect x="28" y="150" width="15" height="40" rx="7" fill="#fff" stroke="#d9dee8" stroke-width="1.5"/><circle cx="35" cy="192" r="8" fill="#ffdcc2"/></g>
+          <g id="r-armR"><rect x="117" y="150" width="15" height="40" rx="7" fill="#fff" stroke="#d9dee8" stroke-width="1.5"/><circle cx="124" cy="192" r="8" fill="#ffdcc2"/></g>
+          <path d="M42,150 Q80,138 118,150 L126,204 Q80,214 34,204 Z" fill="#fff" stroke="#d9dee8" stroke-width="1.5"/>
+          <path d="M50,166 L110,166 L120,206 Q80,216 40,206 Z" fill="#2f7fd8"/>
+          <rect x="54" y="146" width="7" height="24" fill="#2f7fd8"/><rect x="99" y="146" width="7" height="24" fill="#2f7fd8"/>
+          <rect x="66" y="176" width="28" height="18" rx="4" fill="#5d9be6"/>
+          <g id="r-head">
+            <ellipse cx="80" cy="88" rx="62" ry="58" fill="#6a3fb5"/>
+            <path d="M22,90 Q18,130 30,142 L44,130 Z M138,90 Q142,130 130,142 L116,130 Z" fill="#6a3fb5"/>
+            <ellipse cx="80" cy="96" rx="48" ry="46" fill="#ffe2cc"/>
+            <path d="M32,80 Q40,44 80,40 Q120,44 128,80 L118,72 L110,82 L100,70 L90,82 L80,70 L70,82 L60,70 L50,82 L42,72 Z" fill="#6a3fb5"/>
+            <path d="M24,52 L8,40 L12,58 L2,62 L20,66 Z M136,52 L152,40 L148,58 L158,62 L140,66 Z" fill="#fff" stroke="#c5cbe0" stroke-width="1.5"/>
+            <path d="M26,60 Q80,-6 134,60 Q80,46 26,60 Z" fill="#e53935"/>
+            <path d="M26,60 Q80,46 134,60 Q80,54 26,60 Z" fill="#b71c1c"/>
+            <circle cx="80" cy="28" r="5" fill="#fff"/>
+            <ellipse cx="48" cy="118" rx="8" ry="5" fill="#ff8fab" opacity=".6"/>
+            <ellipse cx="112" cy="118" rx="8" ry="5" fill="#ff8fab" opacity=".6"/>
+            <g id="r-eyes"><ellipse cx="61" cy="99" rx="4.5" ry="6" fill="#222"/><ellipse cx="99" cy="99" rx="4.5" ry="6" fill="#222"/></g>
+            <circle cx="61" cy="99" r="18" fill="rgba(255,255,255,.18)" stroke="#222" stroke-width="4.5"/>
+            <circle cx="99" cy="99" r="18" fill="rgba(255,255,255,.18)" stroke="#222" stroke-width="4.5"/>
+            <path d="M79,99 L81,99" stroke="#222" stroke-width="4"/>
+            <path id="r-mouthC" d="M70,124 Q80,132 90,124" stroke="#7a2335" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <g id="r-mouthO"><path id="r-mouthP" d="M68,121 L92,121 Q92,136 80,136 Q68,136 68,121 Z" fill="#7a2335"/><ellipse cx="80" cy="132" rx="6" ry="3" fill="#ff7c93"/></g>
+          </g>
+        </g>
+      </svg>
+
+      <!-- 講師 Allan Lo（Q 版造型） -->
+      <svg id="allan" class="char" viewBox="0 0 220 330" aria-label="講師 Allan Lo">
+        <g id="a-all">
+          <ellipse cx="110" cy="322" rx="62" ry="7" fill="#000" opacity=".12"/>
+          <rect x="80" y="276" width="24" height="40" rx="6" fill="#3a3f4b"/>
+          <rect x="116" y="276" width="24" height="40" rx="6" fill="#3a3f4b"/>
+          <ellipse cx="90" cy="318" rx="17" ry="7" fill="#1d1d22"/>
+          <ellipse cx="130" cy="318" rx="17" ry="7" fill="#1d1d22"/>
+          <g id="a-armL"><rect x="44" y="208" width="24" height="68" rx="12" fill="#2c3e6b"/><circle cx="56" cy="280" r="12" fill="#ffd8bc"/>
+            <line x1="56" y1="282" x2="52" y2="336" stroke="#8d6e63" stroke-width="4.5" stroke-linecap="round"/><circle cx="52" cy="338" r="5" fill="#e53935"/></g>
+          <path d="M50,292 Q46,214 82,198 L138,198 Q174,214 170,292 Z" fill="#2c3e6b"/>
+          <path d="M90,198 L110,246 L130,198 Z" fill="#fff"/>
+          <path d="M82,198 L104,252 L94,214 Z M138,198 L116,252 L126,214 Z" fill="#22325a"/>
+          <path d="M106,204 L114,204 L118,236 L110,248 L102,236 Z" fill="#d32f2f"/>
+          <rect x="128" y="246" width="34" height="15" rx="3" fill="#fff"/>
+          <text x="145" y="257" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="8.5" fill="#2c3e6b">Allan Lo</text>
+          <g id="a-armR"><rect x="152" y="208" width="24" height="68" rx="12" fill="#2c3e6b"/><circle cx="164" cy="280" r="12" fill="#ffd8bc"/></g>
+          <rect x="99" y="176" width="22" height="26" fill="#f5c9a8"/>
+          <g id="a-head">
+            <circle cx="40" cy="114" r="13" fill="#ffd8bc"/><circle cx="180" cy="114" r="13" fill="#ffd8bc"/>
+            <ellipse cx="110" cy="110" rx="70" ry="68" fill="#ffdfc4"/>
+            <path d="M38,108 Q32,36 110,32 Q186,36 182,108 Q176,74 156,64 Q150,80 120,78 Q130,70 126,62 Q100,82 70,70 Q50,78 38,108 Z" fill="#1f1f26"/>
+            <path d="M74,88 Q86,82 98,88" stroke="#1f1f26" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+            <path d="M122,88 Q134,82 146,88" stroke="#1f1f26" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+            <g id="a-eyes"><ellipse cx="87" cy="111" rx="6" ry="8" fill="#222"/><ellipse cx="133" cy="111" rx="6" ry="8" fill="#222"/>
+              <circle cx="89" cy="108" r="2" fill="#fff"/><circle cx="135" cy="108" r="2" fill="#fff"/></g>
+            <rect x="63" y="95" width="46" height="34" rx="11" fill="rgba(255,255,255,.14)" stroke="#1a1a1a" stroke-width="4"/>
+            <rect x="111" y="95" width="46" height="34" rx="11" fill="rgba(255,255,255,.14)" stroke="#1a1a1a" stroke-width="4"/>
+            <path d="M107,104 L113,104 M63,104 L44,108 M157,104 L176,108" stroke="#1a1a1a" stroke-width="4"/>
+            <ellipse cx="72" cy="140" rx="10" ry="6" fill="#ff9e80" opacity=".5"/>
+            <ellipse cx="148" cy="140" rx="10" ry="6" fill="#ff9e80" opacity=".5"/>
+            <path id="a-mouthC" d="M96,148 Q110,160 124,148" stroke="#6d2c22" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <g id="a-mouthO"><path id="a-mouthP" d="M95,145 L125,145 Q125,162 110,162 Q95,162 95,145 Z" fill="#6d1f1f"/><ellipse cx="110" cy="158" rx="7" ry="3.5" fill="#e57373"/></g>
+          </g>
+        </g>
+      </svg>
+      <span class="nametag" id="tagR">助教 阿拉蕾</span>
+      <span class="nametag" id="tagA">講師 Allan Lo</span>
+
+      <div id="sub" class="empty"><span class="who">Allan</span><span class="txt"></span></div>
+      <button id="start" type="button" aria-label="開始上課"><span class="pl"><i>▶</i>開始上課（有聲）</span></button>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button id="play" type="button">▶ 播放</button>
+    <button id="prev" type="button" aria-label="上一幕">⏮</button>
+    <button id="next" type="button" aria-label="下一幕">⏭</button>
+    <input id="seek" type="range" min="0" max="1000" step="1" value="0" aria-label="播放進度">
+    <span id="time">00:00 / 00:00</span>
+    <select id="sceneSel" aria-label="跳到章節"></select>
+    <button id="cc" type="button" aria-pressed="true">字幕 開</button>
+    <button id="fs" type="button">全螢幕</button>
+  </div>
+  <p class="hint">快捷鍵：空白鍵 播放／暫停，← → 切換上一幕／下一幕。</p>
+  <audio id="aud" src="audio/narration.mp3" preload="auto"></audio>
+</div>
+
+<script src="timeline.js"></script>
+<script>
+(() => {
+  const L = window.LESSON, Z = L.zones, S = L.scenes;
+  const $ = s => document.querySelector(s);
+  const stage = $("#stage"), content = $("#content"), aud = $("#aud");
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const ease = p => 1 - Math.pow(1 - p, 3);
+  const back = p => { const c = 1.7; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+  const fmt = s => { s = Math.max(0, s); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(Math.floor(s % 60)).padStart(2, "0"); };
+  const zc = k => (Z[k] || {}).color || "#2f4b8f";
+
+  // ---------- 揭露時間表 ----------
+  S.forEach(sc => {
+    const n = sc.layout === "lifecycle" ? 6 : sc.layout === "matrix" ? sc.rows.length
+      : sc.layout === "chapter" ? sc.icons.length : sc.layout === "case" ? sc.items.length + 1
+      : sc.layout === "quiz" ? 0 : (sc.items || []).length;
+    const init = sc.init != null ? sc.init : (sc.layout === "case" || sc.layout === "chapter" ? 0 : 1);
+    const st = [];
+    const gap = sc.layout === "matrix" ? 0.45 : 0.16;
+    for (let k = 1; k <= Math.min(init, n); k++) st[k] = sc.start + 0.45 + 0.15 * (k - 1);
+    let cur = Math.min(init, n);
+    sc.lines.forEach(l => {
+      if (l.show != null && l.show > cur) {
+        for (let k = cur + 1; k <= Math.min(l.show, n); k++) st[k] = l.start + gap * (k - cur - 1);
+        cur = Math.min(l.show, n);
+      }
+    });
+    for (let k = cur + 1; k <= n; k++) st[k] = sc.start + 0.6 + 0.15 * (k - 1); // 保險：未指定者於開場顯示
+    sc.steps = st;
+    sc.stepAt = k => { const l = sc.lines.find(x => x.show != null && x.show >= k); return l ? l.start : sc.start; };
+  });
+
+  // ---------- 右側導覽 ----------
+  const order = ["mgmt", "in", "both", "out", "people", "end"];
+  const short = {mgmt: "管理階層", in: "組織內", both: "內外流動", out: "組織外", people: "人員異動", end: "設備汰除"};
+  const ctrlNo = {mgmt: "5.37 5.9 5.10", in: "7.3 7.8 7.13 8.14", both: "8.1 5.14 7.10 5.33", out: "6.7 7.9", people: "6.5 5.11", end: "7.14"};
+  $("#mini").innerHTML = order.map(k => `<div class="m" data-z="${k}" style="--mc:${zc(k)}">${short[k]}<small>${ctrlNo[k]}</small></div>`).join("");
+
+  // ---------- 各版型 ----------
+  const T = {
+    cover: sc => `<div class="cover">
+        <div class="eyebrow reveal" data-s="1">ISMS ・ ASSET MANAGEMENT</div>
+        <h2 class="reveal" data-s="1">ISO 27001:2022<br><em>資產管理</em></h2>
+        <div class="sub reveal" data-s="1">${esc(sc.subtitle)}</div>
+        <div class="tag reveal" data-s="1">${esc(sc.tag)}</div>
+        <div class="orbit reveal" data-s="1"><span>💻</span><span>🗄️</span><span>☁️</span><span>📑</span><span>👥</span><span>📱</span></div></div>`,
+    chapter: sc => `<div class="chapter"><div class="big reveal" data-s="0"><div class="num">${sc.num}</div>
+        <div class="t"><small>第 ${sc.num} 章</small><h2>${esc(sc.title)}</h2><i>${esc(sc.en)}</i></div></div>
+        <div class="icons">${sc.icons.map((ic, i) => `<div class="ic reveal" data-s="${i + 1}"><b>${ic[0]}</b><span>${esc(ic[1])}</span></div>`).join("")}</div></div>`,
+    cards: sc => `<div class="cards n${sc.items.length}">${sc.items.map((it, i) =>
+        `<div class="card reveal fz" data-s="${i + 1}" style="--zc:${zc(it.zone || sc.zone)}"><div class="hd"><span class="badge">${it.no}</span><h3>${esc(it.name)}</h3></div>
+        <ul>${it.pts.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>`).join("")}</div>`,
+    audit: sc => `<div class="board">${sc.items.map((it, i) =>
+        `<div class="row reveal fz" data-s="${i + 1}" style="--zc:${zc(sc.zone)}"><div class="box" data-tick="${i + 1}"></div><span class="badge">${it.no}</span>
+        <div><div class="q">${esc(it.q)}</div><div class="ev">${esc(it.ev)}</div></div></div>`).join("")}</div>`,
+    finding: sc => `<div class="finds n${sc.items.length}">${sc.items.map((it, i) =>
+        `<div class="find reveal fz" data-s="${i + 1}" style="--zc:${zc(sc.zone)}"><span class="badge">${it.no}</span><p>${esc(it.t)}</p><span class="stamp" data-stamp="${i + 1}">缺失</span></div>`).join("")}</div>`,
+    case: sc => `<div class="comic">${sc.items.map((it, i) =>
+        `<div class="panel reveal" data-s="${i + 1}"><span class="k">${i + 1}</span><span class="e">${it.e}</span><p>${esc(it.t)}</p></div>`).join("")}</div>
+        <div class="lesson reveal" data-s="${sc.items.length + 1}">${esc(sc.lesson)}</div>`,
+    quiz: sc => `<div class="qbox reveal" data-s="0"><span class="qn">${sc.title}</span>${esc(sc.q)}</div>
+        <div class="opts">${sc.opts.map((o, i) => `<div class="opt reveal" data-s="0" data-i="${i}"><span class="L">${"ABCD"[i]}</span>${esc(o)}</div>`).join("")}</div>`,
+    matrix: sc => `<table class="mtx"><colgroup><col class="c1"><col><col><col></colgroup><thead><tr>${sc.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead>
+        <tbody>${sc.rows.map((r, i) => `<tr class="reveal fz" data-s="${i + 1}" style="--zc:${zc(r[0])}">${r.slice(1).map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`,
+    ending: sc => `<div class="ending"><div class="bye reveal" data-s="0">See you! 下課囉 👋</div>
+        <h2 class="reveal" data-s="0">${esc(sc.title)}</h2>
+        <div class="credit reveal" data-s="0">講師 Allan Lo ｜ 助教 阿拉蕾 ｜ ISO/IEC 27001:2022 Annex A 資產管理系列</div></div>`,
+    lifecycle: sc => {
+      const it = (no, t, z) => `<div class="it" style="--zc:${zc(z)}"><b>${no}</b><span>${t}</span></div>`;
+      return `<div class="lc">
+        <div class="zone z-in"></div><div class="zone z-out"></div>
+        <div class="zlab" style="left:236px;width:200px">🏢 組織內<br>（場所內）</div>
+        <div class="zlab" style="left:590px;width:170px">⛱️ 組織外<br>（場所外）</div>
+        <svg class="flow" viewBox="0 0 860 14" preserveAspectRatio="none"><line id="flowLine" x1="0" y1="7" x2="850" y2="7" stroke="#4472c4" stroke-width="8" stroke-dasharray="22 12" opacity=".55"/><path d="M846,0 L860,7 L846,14 Z" fill="#4472c4"/></svg>
+        <div class="mg reveal fz" data-s="1" style="--zc:${zc("mgmt")}"><span class="lab">👔 管理階層</span>
+          ${it("5.37", "書面化運作程序", "mgmt")}${it("5.9", "資產清冊", "mgmt")}${it("5.10", "可接受使用", "mgmt")}
+          <div class="assets" title="資產">☎️ 🖧 👥 📝 🌐</div></div>
+        <div class="col reveal fz" data-s="2" style="left:232px;top:110px;width:200px;--zc:${zc("in")}">
+          ${it("7.3", "保全辦公室、房間及設施", "in")}${it("7.8", "設備安置及保護", "in")}${it("7.13", "設備維護", "in")}${it("8.14", "資訊處理設施之備援", "in")}</div>
+        <div class="col reveal fz" data-s="3" style="left:442px;top:110px;width:116px;--zc:${zc("both")}">
+          ${it("8.1", "端點裝置", "both")}${it("5.14", "資訊傳送", "both")}${it("7.10", "儲存媒體", "both")}${it("5.33", "紀錄保護", "both")}</div>
+        <div class="col reveal fz" data-s="4" style="left:576px;top:130px;width:180px;--zc:${zc("out")}">
+          ${it("6.7", "遠端工作", "out")}${it("7.9", "場所外資產之安全", "out")}</div>
+        <div class="people reveal fz" data-s="5" style="--zc:${zc("people")}"><span class="p">👥</span>
+          <span class="arrow"><b>6.5</b> 聘用終止或變更後之責任</span><span class="p">🔄</span>
+          <span class="arrow"><b>5.11</b> 資產之歸還</span><span class="p">👥</span></div>
+        <div class="end reveal fz" data-s="6" style="--zc:${zc("end")}"><div class="truck">🚛</div><b>7.14</b><p>設備汰除或重新使用之保全</p><div class="truck" style="font-size:34px">♻️</div></div>
+      </div>`;
+    },
+  };
+
+  // ---------- 渲染 ----------
+  let curIdx = -1, nodes = [];
+  function sceneAt(t) { let i = 0; while (i < S.length - 1 && t >= S[i + 1].start) i++; return i; }
+  function lineAt(sc, t) {
+    for (let i = sc.lines.length - 1; i >= 0; i--) { const l = sc.lines[i]; if (t >= l.start - 0.05) return {l, active: t <= l.end, recent: t <= l.end + 0.8}; }
+    return null;
+  }
+  function build(i) {
+    const sc = S[i]; curIdx = i;
+    content.innerHTML = T[sc.layout](sc);
+    nodes = [...content.querySelectorAll(".reveal")];
+    const z = sc.zone || (sc.layout === "lifecycle" ? null : null);
+    stage.style.setProperty("--zc", z ? zc(z) : "#2f4b8f");
+    $("#chap").textContent = sc.chapter;
+    $("#title").textContent = sc.layout === "quiz" ? "小測驗時間！" : sc.title;
+    document.querySelectorAll("#mini .m").forEach(m => m.classList.toggle("on", !!sc.zone && (m.dataset.z === sc.zone || (sc.id === "op-people" && m.dataset.z === "end"))));
+    $("#sceneSel").value = String(i);
+  }
+
+  function setMouth(prefix, open, amt) {
+    $(`#${prefix}-mouthC`).style.display = open ? "none" : "";
+    const g = $(`#${prefix}-mouthO`); g.style.display = open ? "" : "none";
+    if (open) g.setAttribute("transform", prefix === "a"
+      ? `translate(110 145) scale(1 ${0.45 + amt * 0.75}) translate(-110 -145)`
+      : `translate(80 121) scale(1 ${0.45 + amt * 0.8}) translate(-80 -121)`);
+  }
+
+  function render(t) {
+    const i = sceneAt(t), sc = S[i];
+    if (i !== curIdx) build(i);
+    const lt = t - sc.start;
+
+    // 轉場
+    const tin = ease(clamp(lt / 0.55));
+    content.style.opacity = tin;
+    content.style.transform = `translateX(${(1 - tin) * 40}px)`;
+    $("#title").style.opacity = tin;
+
+    // 揭露項目
+    let focusK = 0;
+    nodes.forEach(n => {
+      const k = +n.dataset.s;
+      const st = k === 0 ? sc.start + 0.3 : sc.steps[k];
+      const p = st == null ? 1 : clamp((t - st) / 0.55);
+      const e = back(p);
+      n.style.opacity = clamp(p * 1.6);
+      n.style.transform = `translateY(${(1 - e) * 26}px) scale(${0.94 + 0.06 * e})`;
+      if (st != null && t >= st && k > focusK) focusK = k;
+    });
+    const multi = ["cards", "audit", "finding", "lifecycle", "matrix"].includes(sc.layout);
+    content.querySelectorAll(".fz").forEach(n => n.classList.toggle("focus", multi && +n.dataset.s === focusK && t < sc.end - 0.3));
+
+    // 打勾、蓋章
+    content.querySelectorAll("[data-tick]").forEach(b => { const st = sc.steps[+b.dataset.tick]; b.textContent = t > st + 0.9 ? "✓" : ""; });
+    content.querySelectorAll("[data-stamp]").forEach(s => {
+      const st = sc.steps[+s.dataset.stamp] + 0.7, p = clamp((t - st) / 0.25);
+      s.style.opacity = p; s.style.transform = `translateY(-50%) rotate(-12deg) scale(${2.2 - 1.2 * p})`;
+    });
+    // 全景圖流動箭頭
+    const fl = content.querySelector("#flowLine"); if (fl) fl.setAttribute("stroke-dashoffset", String(-(t * 40) % 34));
+
+    // 測驗
+    if (sc.layout === "quiz") {
+      const pickT = sc.stepAt(sc.pickStep), ansT = sc.stepAt(sc.answerStep);
+      const picked = sc.wrong != null ? sc.wrong : sc.answer;
+      content.querySelectorAll(".opt").forEach(o => {
+        const idx = +o.dataset.i;
+        o.classList.toggle("ok", t >= ansT && idx === sc.answer);
+        o.classList.toggle("ng", t >= ansT && idx === sc.wrong);
+        let pin = o.querySelector(".pin");
+        if (t >= pickT && idx === picked) { if (!pin) o.insertAdjacentHTML("beforeend", `<span class="pin">阿拉蕾選這個！</span>`); }
+        else if (pin) pin.remove();
+        let mk = o.querySelector(".mark");
+        const want = t >= ansT ? (idx === sc.answer ? "⭕" : idx === sc.wrong ? "❌" : "") : "";
+        if (want && !mk) { o.insertAdjacentHTML("beforeend", `<span class="mark">${want}</span>`); mk = o.querySelector(".mark"); }
+        if (!want && mk) mk.remove();
+        if (mk) { const p = clamp((t - ansT) / 0.3); mk.style.transform = `translateY(-50%) scale(${2 - p})`; mk.style.opacity = p; }
+        if (idx === sc.wrong && t >= ansT && t < ansT + 0.6) o.style.transform = `translateX(${Math.sin((t - ansT) * 50) * 7}px)`;
+      });
+    }
+
+    // 字幕與說話者
+    const cur = lineAt(sc, t);
+    const sub = $("#sub");
+    if (cur && cur.recent) {
+      sub.className = cur.l.who;
+      sub.querySelector(".who").textContent = cur.l.who === "A" ? "Allan" : "阿拉蕾";
+      sub.querySelector(".txt").textContent = cur.l.text;
+    } else sub.className = "empty";
+    const speaker = cur && cur.active ? cur.l.who : null;
+    const ei = Math.floor(t * L.envFps), env = (+(L.env[ei] || 0)) / 9;
+    const open = env > 0.08;
+
+    // Allan
+    const aTalk = speaker === "A";
+    setMouth("a", aTalk && open, env);
+    const aBob = aTalk ? Math.sin(t * 9) * 2.5 : Math.sin(t * 1.6) * 1.5;
+    $("#a-all").setAttribute("transform", `translate(0 ${aBob})`);
+    $("#a-head").setAttribute("transform", `rotate(${aTalk ? Math.sin(t * 3.1) * 4 : Math.sin(t * 0.9) * 1.5} 110 170)`);
+    const armUp = aTalk ? 118 + Math.sin(t * 4.2) * 12 : 14 + Math.sin(t * 1.3) * 3;
+    $("#a-armL").setAttribute("transform", `rotate(${armUp} 56 214)`);
+    $("#a-armR").setAttribute("transform", `rotate(${aTalk ? -10 + Math.sin(t * 2.7) * 8 : -6} 164 214)`);
+    const ab = ((t + 0.3) % 3.7) < 0.14;
+    $("#a-eyes").setAttribute("transform", `translate(0 111) scale(1 ${ab ? 0.12 : 1}) translate(0 -111)`);
+
+    // 阿拉蕾
+    const rTalk = speaker === "R";
+    setMouth("r", rTalk && open, env);
+    const hop = rTalk ? Math.abs(Math.sin(t * 7)) * -9 : Math.sin(t * 2.1) * 1.5;
+    $("#r-all").setAttribute("transform", `translate(0 ${hop})`);
+    $("#r-head").setAttribute("transform", `rotate(${rTalk ? Math.sin(t * 5) * 6 : Math.sin(t * 1.2) * 3 + (aTalk ? 4 : 0)} 80 140)`);
+    $("#r-armL").setAttribute("transform", `rotate(${rTalk ? 140 + Math.sin(t * 12) * 25 : 8} 35 152)`);
+    $("#r-armR").setAttribute("transform", `rotate(${rTalk ? -150 + Math.sin(t * 12 + 1) * 25 : -8} 124 152)`);
+    const rb = ((t + 1.9) % 3.1) < 0.13;
+    $("#r-eyes").setAttribute("transform", `translate(0 99) scale(1 ${rb ? 0.12 : 1}) translate(0 -99)`);
+
+    // 進度
+    $("#clockL").textContent = `第 ${i + 1} / ${S.length} 幕`;
+    $("#clockR").textContent = `${fmt(t)} / ${fmt(L.duration)}`;
+    $("#bar i").style.width = (t / L.duration * 100).toFixed(2) + "%";
+  }
+
+  // ---------- 錄影模式 ----------
+  window.__render = t => render(t);
+  window.__duration = L.duration;
+  if (location.hash === "#render") { document.body.classList.add("render"); render(0); return; }
+
+  // ---------- 播放器 ----------
+  const wrap = $("#stageWrap");
+  const fit = () => { stage.style.transform = `scale(${wrap.clientWidth / 1280})`; };
+  new ResizeObserver(fit).observe(wrap); fit();
+
+  const sel = $("#sceneSel");
+  sel.innerHTML = S.map((s, i) => `<option value="${i}">${fmt(s.start)}｜${esc(s.chapter)}${s.layout === "quiz" ? " " + s.title : "：" + esc(s.title)}</option>`).join("");
+
+  let clockT = 0, last = null, playing = false;
+  const audioOK = () => aud.readyState >= 1 && !aud.error;
+  const now = () => audioOK() ? aud.currentTime : clockT;
+  function seek(t) { t = clamp(t, 0, L.duration - 0.01); clockT = t; if (audioOK()) aud.currentTime = t; render(t); }
+  function setPlaying(p) {
+    playing = p; $("#play").textContent = p ? "❚❚ 暫停" : "▶ 播放";
+    $("#start").hidden = true;
+    if (p) { last = performance.now(); if (audioOK()) aud.play().catch(() => {}); }
+    else aud.pause();
+  }
+  function loop(ts) {
+    if (playing) {
+      if (!audioOK()) { clockT += (ts - (last || ts)) / 1000; }
+      last = ts;
+      const t = now();
+      if (t >= L.duration - 0.02) setPlaying(false);
+      render(Math.min(t, L.duration - 0.01));
+      if (document.activeElement !== $("#seek")) $("#seek").value = Math.round(t / L.duration * 1000);
+      $("#time").textContent = `${fmt(t)} / ${fmt(L.duration)}`;
+    }
+    requestAnimationFrame(loop);
+  }
+  aud.addEventListener("ended", () => setPlaying(false));
+  $("#start").onclick = () => setPlaying(true);
+  $("#play").onclick = () => setPlaying(!playing);
+  const jump = d => { const i = clamp(sceneAt(now() + 0.01) + d, 0, S.length - 1); seek(S[i].start); };
+  $("#prev").onclick = () => jump(now() - S[sceneAt(now())].start > 2 ? 0 : -1);
+  $("#next").onclick = () => jump(1);
+  $("#seek").oninput = e => { const t = e.target.value / 1000 * L.duration; seek(t); $("#time").textContent = `${fmt(t)} / ${fmt(L.duration)}`; };
+  sel.onchange = () => seek(S[+sel.value].start);
+  $("#cc").onclick = () => { const off = document.body.classList.toggle("nocc"); $("#cc").textContent = off ? "字幕 關" : "字幕 開"; $("#cc").setAttribute("aria-pressed", String(!off)); };
+  $("#fs").onclick = () => { const r = wrap.requestFullscreen ? wrap.requestFullscreen() : null; if (r && r.catch) r.catch(() => {}); };
+  document.addEventListener("keydown", e => {
+    if (e.target.matches("input, select")) return;
+    if (e.code === "Space") { e.preventDefault(); setPlaying(!playing); }
+    if (e.key === "ArrowRight") $("#next").click();
+    if (e.key === "ArrowLeft") $("#prev").click();
+  });
+  $("#time").textContent = `00:00 / ${fmt(L.duration)}`;
+  render(S[0].start + 1.2);
+  requestAnimationFrame(loop);
+})();
+</script>
