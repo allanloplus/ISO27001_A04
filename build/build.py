@@ -24,6 +24,27 @@ LEAD, TAIL, GAP_SAME, GAP_SWITCH = 1.0, 1.1, 0.35, 0.55
 ENV_FPS = 25  # 口型取樣率
 
 
+def mood_of(who, text):
+    """依台詞挑選字幕頭像的表情（對應 assets/face/）。"""
+    has = lambda *ks: any(k in text for k in ks)
+    if who == "A":
+        if has("噗噗"): return "point"
+        if has("哈哈", "答對了", "講得太好了", "很好的比喻"): return "laugh"
+        if has("好問題", "居然", "更慘的是", "撐不到"): return "surprised"
+        if has("改善重點", "核心中的核心", "最愛的查核點", "一定做"): return "point"
+        if has("掰掰", "下一堂課見", "很好！", "沒錯", "對！"): return "wink"
+        if has("為什麼", "怎麼", "我會問", "追問"): return "think"
+        return "smile"
+    if has("嗚嗚"): return "cry"
+    if has("好可怕", "然後呢", "哇！離職"): return "surprised"
+    if has("欸？", "咦？"): return "confused"
+    if has("？"): return "think"
+    if has("懂了", "學到了", "記住了", "救一家公司", "畫重點"): return "wink"
+    if has("第一章", "第二章", "第三章", "有測驗", "認真聽", "抱緊緊"): return "cheer"
+    if has("阿拉蕾知道", "這題簡單", "哈囉", "掰掰"): return "talk"
+    return "laugh"
+
+
 def patch_ssl():
     """代理環境需信任指定 CA。"""
     import edge_tts.communicate as ec
@@ -97,7 +118,7 @@ def main():
         for ln in sc["lines"]:
             who, text = ln[0], ln[1]
             show = ln[2] if len(ln) > 2 else None
-            ls.append({"who": who, "text": text, "show": show})
+            ls.append({"who": who, "text": text, "show": show, "mood": mood_of(who, text)})
         norm.append(ls)
 
     asyncio.run(synth_all([(l["who"], l["text"]) for ls in norm for l in ls]))

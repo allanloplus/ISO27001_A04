@@ -29,6 +29,7 @@
 | `index.html` | 互動動畫簡報播放器（有聲、字幕、章節跳轉、全螢幕；空白鍵播放、←→ 換幕） |
 | `output/ISO27001_資產管理_AllanLo.mp4` | 輸出影片（1280×720） |
 | `講稿.md` | 完整講稿（含時間碼） |
+| `build/make_characters.py` | 由角色設定圖裁切去背、產生表情頭像 |
 | `build/lesson.py` | **腳本與分鏡**：要改台詞、內容都改這裡 |
 | `build/build.py` | 產生旁白 `audio/narration.mp3`、`timeline.js`、`講稿.md` |
 | `build/render_video.mjs` | 用 Playwright 逐格渲染並合成 MP4 |
@@ -46,4 +47,12 @@ node build/render_video.mjs            # 重新輸出 MP4（需 playwright + ffm
 node build/render_video.mjs --stills 10,200   # 只輸出指定秒數截圖檢查版面
 ```
 
-> 角色皆為以 SVG 繪製的原創 Q 版造型。「阿拉蕾」為知名漫畫角色名稱，若課程對外商業販售，建議改用自有吉祥物名稱與造型。
+## 角色素材
+
+講師與助教取自 `build/src/` 的角色設定圖，由 `python3 build/make_characters.py` 自動產生：
+
+- `assets/allan.png`、`assets/arale.png`：去背全身像（Allan 左右翻轉，讓手勢指向教材，名牌保持正向）
+- `assets/face/*.jpg`：表情包，作為字幕頭像，依台詞自動切換（規則在 `build/build.py` 的 `mood_of`）
+- 嘴型與眨眼是在播放器內以向量疊加，跟著旁白音量同步
+
+> 「阿拉蕾」為知名漫畫角色名稱，若課程對外商業販售，建議確認名稱使用上沒有疑慮。

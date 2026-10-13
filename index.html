@@ -45,15 +45,20 @@ body { background: var(--page); color: var(--page-fg); font-family: var(--f-body
 #bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #4caf50, #5b9bd5, #f08a24); }
 
 /* 角色 */
-.char { position: absolute; bottom: 82px; overflow: visible; }
-#allan { left: 915px; width: 220px; height: 330px; }
-#arale { left: 1118px; width: 150px; height: 225px; }
+.char { position: absolute; bottom: 84px; transform-origin: 50% 100%; }
+.char img, .char svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#allan { left: 905px; width: 194px; height: 370px; }
+#arale { left: 1116px; width: 146px; height: 280px; }
 .nametag { position: absolute; bottom: 74px; font: 700 13px var(--f-body); color: #fff; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
-#tagA { left: 968px; background: var(--allan); }
-#tagR { left: 1150px; background: var(--arale); }
+#tagA { left: 958px; background: var(--allan); }
+#tagR { left: 1146px; background: var(--arale); }
 
 /* 字幕 */
 #sub { position: absolute; left: 20px; right: 20px; bottom: 10px; height: 62px; display: flex; align-items: center; gap: 12px; padding: 8px 18px; border-radius: 14px; background: rgba(23,32,58,.9); color: #fff; font: 500 21px/1.3 var(--f-body); }
+#sub { padding-left: 108px; }
+#sub .av { position: absolute; left: 14px; bottom: 6px; width: 84px; height: 84px; border-radius: 50%; overflow: hidden; border: 4px solid var(--allan); background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+#sub .av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#sub.R .av { border-color: var(--arale); }
 #sub .who { flex: none; font: 700 15px var(--f-body); padding: 4px 10px; border-radius: 8px; background: var(--allan); }
 #sub.R .who { background: var(--arale); }
 #sub .txt { flex: 1; text-wrap: pretty; }
@@ -213,81 +218,35 @@ body.render #stageWrap { width: 1280px; height: 720px; border-radius: 0; box-sha
       <div id="clock"><span id="clockL"></span><span id="clockR"></span></div>
       <div id="bar"><i></i></div>
 
-      <!-- 助教 阿拉蕾（原創 Q 版造型） -->
-      <svg id="arale" class="char" viewBox="0 0 160 240" aria-label="助教阿拉蕾">
-        <g id="r-all">
-          <ellipse cx="80" cy="234" rx="44" ry="6" fill="#000" opacity=".12"/>
-          <rect x="62" y="196" width="12" height="30" rx="5" fill="#ffdcc2"/>
-          <rect x="86" y="196" width="12" height="30" rx="5" fill="#ffdcc2"/>
-          <ellipse cx="66" cy="229" rx="12" ry="6" fill="#e53935"/>
-          <ellipse cx="94" cy="229" rx="12" ry="6" fill="#e53935"/>
-          <g id="r-armL"><rect x="28" y="150" width="15" height="40" rx="7" fill="#fff" stroke="#d9dee8" stroke-width="1.5"/><circle cx="35" cy="192" r="8" fill="#ffdcc2"/></g>
-          <g id="r-armR"><rect x="117" y="150" width="15" height="40" rx="7" fill="#fff" stroke="#d9dee8" stroke-width="1.5"/><circle cx="124" cy="192" r="8" fill="#ffdcc2"/></g>
-          <path d="M42,150 Q80,138 118,150 L126,204 Q80,214 34,204 Z" fill="#fff" stroke="#d9dee8" stroke-width="1.5"/>
-          <path d="M50,166 L110,166 L120,206 Q80,216 40,206 Z" fill="#2f7fd8"/>
-          <rect x="54" y="146" width="7" height="24" fill="#2f7fd8"/><rect x="99" y="146" width="7" height="24" fill="#2f7fd8"/>
-          <rect x="66" y="176" width="28" height="18" rx="4" fill="#5d9be6"/>
-          <g id="r-head">
-            <ellipse cx="80" cy="88" rx="62" ry="58" fill="#6a3fb5"/>
-            <path d="M22,90 Q18,130 30,142 L44,130 Z M138,90 Q142,130 130,142 L116,130 Z" fill="#6a3fb5"/>
-            <ellipse cx="80" cy="96" rx="48" ry="46" fill="#ffe2cc"/>
-            <path d="M32,80 Q40,44 80,40 Q120,44 128,80 L118,72 L110,82 L100,70 L90,82 L80,70 L70,82 L60,70 L50,82 L42,72 Z" fill="#6a3fb5"/>
-            <path d="M24,52 L8,40 L12,58 L2,62 L20,66 Z M136,52 L152,40 L148,58 L158,62 L140,66 Z" fill="#fff" stroke="#c5cbe0" stroke-width="1.5"/>
-            <path d="M26,60 Q80,-6 134,60 Q80,46 26,60 Z" fill="#e53935"/>
-            <path d="M26,60 Q80,46 134,60 Q80,54 26,60 Z" fill="#b71c1c"/>
-            <circle cx="80" cy="28" r="5" fill="#fff"/>
-            <ellipse cx="48" cy="118" rx="8" ry="5" fill="#ff8fab" opacity=".6"/>
-            <ellipse cx="112" cy="118" rx="8" ry="5" fill="#ff8fab" opacity=".6"/>
-            <g id="r-eyes"><ellipse cx="61" cy="99" rx="4.5" ry="6" fill="#222"/><ellipse cx="99" cy="99" rx="4.5" ry="6" fill="#222"/></g>
-            <circle cx="61" cy="99" r="18" fill="rgba(255,255,255,.18)" stroke="#222" stroke-width="4.5"/>
-            <circle cx="99" cy="99" r="18" fill="rgba(255,255,255,.18)" stroke="#222" stroke-width="4.5"/>
-            <path d="M79,99 L81,99" stroke="#222" stroke-width="4"/>
-            <path id="r-mouthC" d="M70,124 Q80,132 90,124" stroke="#7a2335" stroke-width="3" fill="none" stroke-linecap="round"/>
-            <g id="r-mouthO"><path id="r-mouthP" d="M68,121 L92,121 Q92,136 80,136 Q68,136 68,121 Z" fill="#7a2335"/><ellipse cx="80" cy="132" rx="6" ry="3" fill="#ff7c93"/></g>
-          </g>
-        </g>
-      </svg>
-
-      <!-- 講師 Allan Lo（Q 版造型） -->
-      <svg id="allan" class="char" viewBox="0 0 220 330" aria-label="講師 Allan Lo">
-        <g id="a-all">
-          <ellipse cx="110" cy="322" rx="62" ry="7" fill="#000" opacity=".12"/>
-          <rect x="80" y="276" width="24" height="40" rx="6" fill="#3a3f4b"/>
-          <rect x="116" y="276" width="24" height="40" rx="6" fill="#3a3f4b"/>
-          <ellipse cx="90" cy="318" rx="17" ry="7" fill="#1d1d22"/>
-          <ellipse cx="130" cy="318" rx="17" ry="7" fill="#1d1d22"/>
-          <g id="a-armL"><rect x="44" y="208" width="24" height="68" rx="12" fill="#2c3e6b"/><circle cx="56" cy="280" r="12" fill="#ffd8bc"/>
-            <line x1="56" y1="282" x2="52" y2="336" stroke="#8d6e63" stroke-width="4.5" stroke-linecap="round"/><circle cx="52" cy="338" r="5" fill="#e53935"/></g>
-          <path d="M50,292 Q46,214 82,198 L138,198 Q174,214 170,292 Z" fill="#2c3e6b"/>
-          <path d="M90,198 L110,246 L130,198 Z" fill="#fff"/>
-          <path d="M82,198 L104,252 L94,214 Z M138,198 L116,252 L126,214 Z" fill="#22325a"/>
-          <path d="M106,204 L114,204 L118,236 L110,248 L102,236 Z" fill="#d32f2f"/>
-          <rect x="128" y="246" width="34" height="15" rx="3" fill="#fff"/>
-          <text x="145" y="257" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="8.5" fill="#2c3e6b">Allan Lo</text>
-          <g id="a-armR"><rect x="152" y="208" width="24" height="68" rx="12" fill="#2c3e6b"/><circle cx="164" cy="280" r="12" fill="#ffd8bc"/></g>
-          <rect x="99" y="176" width="22" height="26" fill="#f5c9a8"/>
-          <g id="a-head">
-            <circle cx="40" cy="114" r="13" fill="#ffd8bc"/><circle cx="180" cy="114" r="13" fill="#ffd8bc"/>
-            <ellipse cx="110" cy="110" rx="70" ry="68" fill="#ffdfc4"/>
-            <path d="M38,108 Q32,36 110,32 Q186,36 182,108 Q176,74 156,64 Q150,80 120,78 Q130,70 126,62 Q100,82 70,70 Q50,78 38,108 Z" fill="#1f1f26"/>
-            <path d="M74,88 Q86,82 98,88" stroke="#1f1f26" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-            <path d="M122,88 Q134,82 146,88" stroke="#1f1f26" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-            <g id="a-eyes"><ellipse cx="87" cy="111" rx="6" ry="8" fill="#222"/><ellipse cx="133" cy="111" rx="6" ry="8" fill="#222"/>
-              <circle cx="89" cy="108" r="2" fill="#fff"/><circle cx="135" cy="108" r="2" fill="#fff"/></g>
-            <rect x="63" y="95" width="46" height="34" rx="11" fill="rgba(255,255,255,.14)" stroke="#1a1a1a" stroke-width="4"/>
-            <rect x="111" y="95" width="46" height="34" rx="11" fill="rgba(255,255,255,.14)" stroke="#1a1a1a" stroke-width="4"/>
-            <path d="M107,104 L113,104 M63,104 L44,108 M157,104 L176,108" stroke="#1a1a1a" stroke-width="4"/>
-            <ellipse cx="72" cy="140" rx="10" ry="6" fill="#ff9e80" opacity=".5"/>
-            <ellipse cx="148" cy="140" rx="10" ry="6" fill="#ff9e80" opacity=".5"/>
-            <path id="a-mouthC" d="M96,148 Q110,160 124,148" stroke="#6d2c22" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-            <g id="a-mouthO"><path id="a-mouthP" d="M95,145 L125,145 Q125,162 110,162 Q95,162 95,145 Z" fill="#6d1f1f"/><ellipse cx="110" cy="158" rx="7" ry="3.5" fill="#e57373"/></g>
-          </g>
-        </g>
-      </svg>
+      <!-- 講師 Allan Lo、助教 阿拉蕾：取自角色設定圖，嘴型與眨眼以向量疊加 -->
+      <div id="allan" class="char" aria-label="講師 Allan Lo">
+        <img src="assets/allan.png" alt="">
+        <svg viewBox="0 0 398 760" aria-hidden="true">
+          <defs><filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="0.9"/></filter></defs>
+          <g id="a-blink" style="display:none">
+            <ellipse cx="202" cy="109" rx="14" ry="7.5" fill="#f9c8a6" filter="url(#soft)"/><ellipse cx="266" cy="109" rx="14" ry="7.5" fill="#f9c8a6" filter="url(#soft)"/>
+            <path d="M190,111 Q202,116 214,111 M254,111 Q266,116 278,111" stroke="#2a1a14" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>
+          <g id="a-mouth" style="display:none">
+            <path id="a-mouthP" d="" fill="#5c1717" stroke="#1d1210" stroke-width="2.4" stroke-linejoin="round"/>
+            <path id="a-teeth" d="" fill="#fff"/>
+            <ellipse id="a-tongue" cx="234" cy="170" rx="12" ry="4" fill="#e0727a"/></g>
+        </svg>
+      </div>
+      <div id="arale" class="char" aria-label="助教阿拉蕾">
+        <img src="assets/arale.png" alt="">
+        <svg viewBox="0 0 292 560" aria-hidden="true">
+          <g id="r-blink" style="display:none">
+            <ellipse cx="130" cy="118" rx="11.5" ry="12.5" fill="#fbcdb4" filter="url(#soft)"/><ellipse cx="176" cy="118" rx="11.5" ry="12.5" fill="#fbcdb4" filter="url(#soft)"/>
+            <path d="M119,120 Q130,127 141,120 M165,120 Q176,127 187,120" stroke="#1f2440" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>
+          <g id="r-shut" style="display:none">
+            <ellipse cx="156" cy="154" rx="20" ry="10.5" fill="#fbc4ab" filter="url(#soft)"/>
+            <path id="r-mouthP" d="" fill="#6a2a2a" stroke="#3a1c1c" stroke-width="1.8" stroke-linejoin="round"/></g>
+        </svg>
+      </div>
       <span class="nametag" id="tagR">助教 阿拉蕾</span>
       <span class="nametag" id="tagA">講師 Allan Lo</span>
 
-      <div id="sub" class="empty"><span class="who">Allan</span><span class="txt"></span></div>
+      <div id="sub" class="empty"><span class="av"><img id="avimg" src="assets/face/allan_smile.jpg" alt=""></span><span class="who">Allan</span><span class="txt"></span></div>
       <button id="start" type="button" aria-label="開始上課"><span class="pl"><i>▶</i>開始上課（有聲）</span></button>
     </div>
   </div>
@@ -418,13 +377,26 @@ body.render #stageWrap { width: 1280px; height: 720px; border-radius: 0; box-sha
     $("#sceneSel").value = String(i);
   }
 
-  function setMouth(prefix, open, amt) {
-    $(`#${prefix}-mouthC`).style.display = open ? "none" : "";
-    const g = $(`#${prefix}-mouthO`); g.style.display = open ? "" : "none";
-    if (open) g.setAttribute("transform", prefix === "a"
-      ? `translate(110 145) scale(1 ${0.45 + amt * 0.75}) translate(-110 -145)`
-      : `translate(80 121) scale(1 ${0.45 + amt * 0.8}) translate(-80 -121)`);
+  // 嘴型：Allan 原圖為閉口微笑 → 疊加張口；阿拉蕾原圖為開口笑 → 安靜時以膚色蓋住並畫小嘴
+  function mouthAllan(amt) {
+    const g = $("#a-mouth");
+    if (amt <= 0) { g.style.display = "none"; return; }
+    g.style.display = "";
+    const d = 5 + amt * 17;
+    $("#a-mouthP").setAttribute("d", `M206,157 Q234,166 262,157 Q258,${158 + d} 234,${161 + d} Q210,${158 + d} 206,157 Z`);
+    $("#a-teeth").setAttribute("d", `M210,158.5 Q234,166.5 258,158.5 L257,${161 + Math.min(d, 9) * .35} Q234,${168 + Math.min(d, 9) * .35} 211,${161 + Math.min(d, 9) * .35} Z`);
+    const tg = $("#a-tongue"); tg.setAttribute("cy", 156 + d); tg.style.display = d > 10 ? "" : "none";
   }
+  function mouthArale(amt) {
+    const g = $("#r-shut");
+    if (amt >= 0.55) { g.style.display = "none"; return; }  // 大聲時直接用原畫的大笑嘴
+    g.style.display = "";
+    const d = amt <= 0 ? 0 : 3 + amt * 14;
+    $("#r-mouthP").setAttribute("d", d === 0
+      ? "M143,150 Q156,157 169,149 Q156,154 143,150 Z"
+      : `M143,149 Q156,152 169,148 Q166,${150 + d} 156,${151 + d} Q146,${150 + d} 143,149 Z`);
+  }
+  const moodOf = l => (l.who === "A" ? "allan_" : "arale_") + (l.mood || (l.who === "A" ? "smile" : "laugh"));
 
   function render(t) {
     const i = sceneAt(t), sc = S[i];
@@ -487,33 +459,30 @@ body.render #stageWrap { width: 1280px; height: 720px; border-radius: 0; box-sha
       sub.className = cur.l.who;
       sub.querySelector(".who").textContent = cur.l.who === "A" ? "Allan" : "阿拉蕾";
       sub.querySelector(".txt").textContent = cur.l.text;
+      const src = `assets/face/${moodOf(cur.l)}.jpg`;
+      if ($("#avimg").getAttribute("src") !== src) $("#avimg").setAttribute("src", src);
+      const pa = clamp((t - cur.l.start) / 0.3);
+      sub.querySelector(".av").style.transform = `scale(${0.6 + 0.4 * back(pa)})`;
     } else sub.className = "empty";
     const speaker = cur && cur.active ? cur.l.who : null;
     const ei = Math.floor(t * L.envFps), env = (+(L.env[ei] || 0)) / 9;
-    const open = env > 0.08;
+    const amt = env > 0.08 ? clamp(env * 1.25) : 0;
 
-    // Allan
+    // Allan：說話時微微晃動、前傾
     const aTalk = speaker === "A";
-    setMouth("a", aTalk && open, env);
-    const aBob = aTalk ? Math.sin(t * 9) * 2.5 : Math.sin(t * 1.6) * 1.5;
-    $("#a-all").setAttribute("transform", `translate(0 ${aBob})`);
-    $("#a-head").setAttribute("transform", `rotate(${aTalk ? Math.sin(t * 3.1) * 4 : Math.sin(t * 0.9) * 1.5} 110 170)`);
-    const armUp = aTalk ? 118 + Math.sin(t * 4.2) * 12 : 14 + Math.sin(t * 1.3) * 3;
-    $("#a-armL").setAttribute("transform", `rotate(${armUp} 56 214)`);
-    $("#a-armR").setAttribute("transform", `rotate(${aTalk ? -10 + Math.sin(t * 2.7) * 8 : -6} 164 214)`);
-    const ab = ((t + 0.3) % 3.7) < 0.14;
-    $("#a-eyes").setAttribute("transform", `translate(0 111) scale(1 ${ab ? 0.12 : 1}) translate(0 -111)`);
+    mouthAllan(aTalk ? amt : 0);
+    const aBob = aTalk ? Math.abs(Math.sin(t * 4.5)) * -4 : Math.sin(t * 1.6) * 1.2;
+    const aRot = aTalk ? Math.sin(t * 2.3) * 1.6 : Math.sin(t * 0.8) * 0.5;
+    $("#allan").style.transform = `translateY(${aBob}px) rotate(${aRot}deg) scale(${aTalk ? 1.015 : 1})`;
+    $("#a-blink").style.display = ((t + 0.3) % 3.7) < 0.13 ? "" : "none";
 
-    // 阿拉蕾
+    // 阿拉蕾：說話時蹦跳
     const rTalk = speaker === "R";
-    setMouth("r", rTalk && open, env);
-    const hop = rTalk ? Math.abs(Math.sin(t * 7)) * -9 : Math.sin(t * 2.1) * 1.5;
-    $("#r-all").setAttribute("transform", `translate(0 ${hop})`);
-    $("#r-head").setAttribute("transform", `rotate(${rTalk ? Math.sin(t * 5) * 6 : Math.sin(t * 1.2) * 3 + (aTalk ? 4 : 0)} 80 140)`);
-    $("#r-armL").setAttribute("transform", `rotate(${rTalk ? 140 + Math.sin(t * 12) * 25 : 8} 35 152)`);
-    $("#r-armR").setAttribute("transform", `rotate(${rTalk ? -150 + Math.sin(t * 12 + 1) * 25 : -8} 124 152)`);
-    const rb = ((t + 1.9) % 3.1) < 0.13;
-    $("#r-eyes").setAttribute("transform", `translate(0 99) scale(1 ${rb ? 0.12 : 1}) translate(0 -99)`);
+    mouthArale(rTalk ? amt : 0);
+    const hop = rTalk ? Math.abs(Math.sin(t * 6.5)) * -10 : Math.sin(t * 2.1) * 1.5;
+    const rRot = rTalk ? Math.sin(t * 4) * 3 : Math.sin(t * 1.1) * 1 + (aTalk ? -1.5 : 0);
+    $("#arale").style.transform = `translateY(${hop}px) rotate(${rRot}deg)`;
+    $("#r-blink").style.display = ((t + 1.9) % 3.1) < 0.12 ? "" : "none";
 
     // 進度
     $("#clockL").textContent = `第 ${i + 1} / ${S.length} 幕`;
